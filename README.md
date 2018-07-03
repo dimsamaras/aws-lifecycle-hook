@@ -3,10 +3,8 @@ https://medium.com/@manojkumarcloud/auto-scaling-lifecycle-hooks-to-export-serve
 
 
 
-move all logs to the same directory 
-...edit in the various conf files
 
-## FLOW
+### my FLOW
 
 policy: theASGTerminatingPolicy
 
@@ -30,4 +28,4 @@ ssm document: ec2TerminationBackupLogs
 
 ******
 INSTALL ssm-agent & awscli in the instances @ user-data
-CHANGE configs & TAKE IMAGEs!
+CHANGE configs & TAKE IMAGEs! (move all logs to the same directory  ... edit in the various .conf files)
