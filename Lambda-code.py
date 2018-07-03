@@ -13,20 +13,26 @@ ASG_KEY = "AutoScalingGroupName"
 EC2_KEY = "EC2InstanceId"
 RESPONSE_DOCUMENT_KEY = "DocumentIdentifiers"
 
-
+# SET THE ENV VARIABLES
 S3BUCKET = os.environ['S3BUCKET']
 SNSTARGET = os.environ['SNSTARGET']
 DOCUMENT_NAME = os.environ['SSM_DOCUMENT_NAME']
+ASG_NAME_WEB = os.environ['ASG_NAME_WEB']
+ASG_NAME_WORKER = os.environ['ASG_NAME_WORKER']
+BACKUP_DIR_WEB = os.environ['BACKUP_DIR_WEB']
+BACKUP_DIR_WORKER = os.environ['BACKUP_DIR_WORKER']
 
-########################  Modify the autosclaing group name and which you would like to take backup ###########
 def backup_dir(ASGNAME):
     auto_scaling_group = ASGNAME
-    print(auto_scaling_group)
-    if auto_scaling_group == 'asgname-1':
-        return "/opt/backup/logs/"
-    else:
-        return "/var/log/"
-#############################################
+    print('checking ASG: ' + auto_scaling_group)
+    if auto_scaling_group == ASG_NAME_WEB:
+        # return "/usr/local/nginx/logs/"
+        return BACKUP_DIR_WEB
+        # else:
+    elif auto_scaling_group == ASG_NAME_WORKER:
+        # return "/var/log/php-fpm/"
+        return BACKUP_DIR_WORKER
+
 def check_response(response_json):
     try:
         if response_json['ResponseMetadata']['HTTPStatusCode'] == 200:
@@ -74,14 +80,14 @@ def send_command(instance_id,LIFECYCLEHOOKNAME,ASGNAME):
         BACKUPDIRECTORY= backup_dir(ASGNAME)
         response = ssm_client.send_command(
             InstanceIds = [ instance_id ], 
-            DocumentName=DOCUMENT_NAME,
-            Parameters= {
+            DocumentName = DOCUMENT_NAME,
+            Parameters = {
             'ASGNAME' : [ASGNAME],
             'LIFECYCLEHOOKNAME' : [LIFECYCLEHOOKNAME],
             'BACKUPDIRECTORY' : [BACKUPDIRECTORY],
             'S3BUCKET' : [S3BUCKET],
             'SNSTARGET' : [SNSTARGET] },
-            TimeoutSeconds= 600
+            TimeoutSeconds = 600
             )
         if check_response(response):
             logger.info("Command sent: %s", response)
@@ -141,14 +147,14 @@ def lambda_handler(event, context):
         print (message)
         if LIFECYCLE_KEY in message and ASG_KEY in message:
             life_cycle_hook = message[LIFECYCLE_KEY]
-            print (life_cycle_hook)
+            print ('life cycle hook: ' + life_cycle_hook)
             auto_scaling_group = message[ASG_KEY]
-            print (auto_scaling_group)
+            print ('autoscaling group: ' + auto_scaling_group)
             instance_id = message[EC2_KEY]
-            print (instance_id)
+            print ('instance id: ' + instance_id)
             if check_document():
                 command_id = send_command(instance_id,life_cycle_hook,auto_scaling_group)
-                print (command_id)
+                print ('ssm command id: ' + command_id)
                 if command_id != None:
                     if check_command(command_id, instance_id):
                         logging.info("Lambda executed correctly")
