@@ -1,0 +1,19 @@
+### modify accordingly
+
+#cloud-config
+repo_upgrade: none
+
+runcmd:
+- ... commands...
+- mkdir /tmp/ssm
+- cd /tmp/ssm
+- sudo su
+- yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
+- start amazon-ssm-agent
+- pip install awscli -I
+- ...clear old logs...
+- rm -rf /var/log/php-fpm/5.6/*
+- cat > /var/log/php-fpm/fpm-error.log &
+- cat > /var/log/php-fpm/www-error.log &
+- cat > /usr/local/nginx/logs/error.log &
+- exit
