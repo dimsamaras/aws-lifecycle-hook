@@ -15,15 +15,10 @@ rola lambda: lambdaTheTermination-role
 Lifecycle Hook:
 test-hook autoscaling:EC2_INSTANCE_TERMINATING
 
-bucket: 
-{
-    "Location": "/theBucket"
-}
 
+ssm document: TerminateRunnersFirst
 
-ssm document: ec2TerminationBackupLogs
- 
- Lambda function: backup-ec2-logs
+Lambda function: worker_instance_terminating_lambdags
 
 
 ******
