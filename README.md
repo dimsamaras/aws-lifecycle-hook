@@ -29,3 +29,9 @@ ssm document: ec2TerminationBackupLogs
 ******
 INSTALL ssm-agent & awscli in the instances @ user-data
 CHANGE configs & TAKE IMAGEs! (move all logs to the same directory  ... edit in the various .conf files)
+
+
+!!!!!!!!
+HOW TO:
+get instance-id and region from within the ec2-instance without curl (ssm document)
+!!!!!!!!
