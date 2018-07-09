@@ -13,25 +13,8 @@ ASG_KEY = "AutoScalingGroupName"
 EC2_KEY = "EC2InstanceId"
 RESPONSE_DOCUMENT_KEY = "DocumentIdentifiers"
 
-# SET THE ENV VARIABLES
-S3BUCKET = os.environ['S3BUCKET']
 SNSTARGET = os.environ['SNSTARGET']
 DOCUMENT_NAME = os.environ['SSM_DOCUMENT_NAME']
-ASG_NAME_WEB = os.environ['ASG_NAME_WEB']
-ASG_NAME_WORKER = os.environ['ASG_NAME_WORKER']
-BACKUP_DIR_WEB = os.environ['BACKUP_DIR_WEB']
-BACKUP_DIR_WORKER = os.environ['BACKUP_DIR_WORKER']
-
-def backup_dir(ASGNAME):
-    auto_scaling_group = ASGNAME
-    print('checking ASG: ' + auto_scaling_group)
-    if auto_scaling_group == ASG_NAME_WEB:
-        # return "/usr/local/nginx/logs/"
-        return BACKUP_DIR_WEB
-        # else:
-    elif auto_scaling_group == ASG_NAME_WORKER:
-        # return "/var/log/php-fpm/"
-        return BACKUP_DIR_WORKER
 
 def check_response(response_json):
     try:
@@ -77,17 +60,14 @@ def send_command(instance_id,LIFECYCLEHOOKNAME,ASGNAME):
         time.sleep(timewait)
         timewait += timewait
     try:
-        BACKUPDIRECTORY= backup_dir(ASGNAME)
         response = ssm_client.send_command(
             InstanceIds = [ instance_id ], 
             DocumentName = DOCUMENT_NAME,
             Parameters = {
             'ASGNAME' : [ASGNAME],
             'LIFECYCLEHOOKNAME' : [LIFECYCLEHOOKNAME],
-            'BACKUPDIRECTORY' : [BACKUPDIRECTORY],
-            'S3BUCKET' : [S3BUCKET],
             'SNSTARGET' : [SNSTARGET] },
-            TimeoutSeconds = 600
+            TimeoutSeconds = 300
             )
         if check_response(response):
             logger.info("Command sent: %s", response)
@@ -106,10 +86,9 @@ def check_command(command_id, instance_id):
         time.sleep(10)
         response_iterator = ssm_client.list_command_invocations(
             CommandId = command_id, 
-            InstanceId = instance_id, 
-            Details=False
+            InstanceId = instance_id
             )
-        logging.info( "list command invoations: %s", response_iterator)
+        logging.info( "list command invocations: %s", response_iterator)
             
         if check_response(response_iterator):
             response_iterator_status = response_iterator['CommandInvocations'][0]['Status']
