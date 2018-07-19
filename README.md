@@ -6,6 +6,8 @@ https://medium.com/@manojkumarcloud/auto-scaling-lifecycle-hooks-to-export-serve
 
 ### my FLOW
 
+sns: instanceTerminating
+
 policy: theASGTerminatingPolicy
 
 role: theInstance-role
